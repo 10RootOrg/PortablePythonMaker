@@ -3,7 +3,8 @@
 A standalone PowerShell script that creates portable Python environments with all dependencies bundled.
 
 **No Python installation required** - just run the script on any Windows machine.
-
+**Video Tutorial**  
+[![Video Tutorial](https://img.youtube.com/vi/If6hmAhEmIc/0.jpg)](https://www.youtube.com/watch?v=If6hmAhEmIc)
 ## Quick Start
 
 ```powershell
