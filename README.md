@@ -13,12 +13,46 @@ A standalone PowerShell script that creates portable Python environments with al
 
 ## Features
 
-- **Standalone** - No Python needed to run this tool
+- **Truly Standalone** - No Python or VC++ runtime needed on build machine
+- **Embedded VC++ DLLs** - 12 VC++ runtime DLLs are embedded in the script itself
 - Downloads official Python embeddable package (3.9, 3.10, 3.11, 3.12)
 - Automatically sets up pip
 - Installs all packages from requirements.txt
+- **Uses delvewheel** - Bundles DLLs directly into packages for true portability
+- Works with compiled packages (numpy, scipy, spacy, torch, etc.)
 - Supports local module imports (current working directory added to path)
 - Output is fully portable - copy to any Windows PC
+
+## How It Works
+
+1. Extracts embedded VC++ runtime DLLs (vcruntime140, msvcp140, etc.)
+2. Downloads Python embeddable package
+3. Installs pip and delvewheel (build tool)
+4. Downloads all wheels from requirements.txt
+5. Repairs platform-specific wheels with delvewheel (embeds DLLs)
+6. Installs the repaired packages
+7. Cleans up build tools
+
+The result is a Python distribution where all native dependencies are bundled directly into the packages - no external DLLs required.
+
+## Embedded VC++ DLLs
+
+The script embeds the following VC++ 2015-2022 runtime DLLs:
+
+| DLL | Purpose |
+|-----|---------|
+| vcruntime140.dll | Core C runtime |
+| vcruntime140_1.dll | Extended C runtime |
+| vcruntime140_threads.dll | Thread support |
+| msvcp140.dll | C++ standard library |
+| msvcp140_1.dll | Extended C++ library |
+| msvcp140_2.dll | Additional C++ features |
+| msvcp140_atomic_wait.dll | C++20 atomics |
+| msvcp140_codecvt_ids.dll | Character conversion |
+| concrt140.dll | Concurrency runtime |
+| vcomp140.dll | OpenMP support |
+| vccorlib140.dll | WinRT support |
+| vcamp140.dll | C++ AMP (GPU) |
 
 ## Usage
 
@@ -56,9 +90,15 @@ A standalone PowerShell script that creates portable Python environments with al
 portable_python/
 ├── python.exe
 ├── python311.dll
+├── vcruntime140.dll        # VC++ runtime DLLs
+├── msvcp140.dll
+├── ...
 ├── Lib/
 │   └── site-packages/
-│       └── sitecustomize.py
+│       ├── sitecustomize.py  # Auto-loads DLLs at startup
+│       ├── numpy/
+│       │   └── .libs/        # Package DLLs bundled by delvewheel
+│       └── ...
 └── ...
 ```
 
@@ -77,7 +117,9 @@ Copy the output folder to any Windows machine:
 
 - Windows x64
 - PowerShell 5.1+
-- Internet connection
+- Internet connection (for downloading Python and packages)
+
+**No Visual C++ Redistributable needed** - VC++ DLLs are embedded in the script.
 
 ## Libraries & Licenses
 
@@ -86,6 +128,8 @@ Copy the output folder to any Windows machine:
 | Python Embeddable | [python.org](https://www.python.org/ftp/python/) | PSF License |
 | pip | [pypa/pip](https://github.com/pypa/pip) | MIT |
 | get-pip.py | [pypa/get-pip](https://github.com/pypa/get-pip) | MIT |
+| delvewheel | [adang1345/delvewheel](https://github.com/adang1345/delvewheel) | MIT |
+| VC++ Runtime | Microsoft | [Microsoft Software License](https://visualstudio.microsoft.com/license-terms/) |
 
 ## License
 
